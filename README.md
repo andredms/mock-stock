@@ -1,5 +1,5 @@
 # MockStock
-A fake stock market which utilises Python, SQLite, Selenium and Matplotlib. Allows users to invest into the ASX without the risk of losing any money. Scrapes the ASX through a Chrome web-driver and stores all investor data stored within a database which the user can query through various commands. The market is open on weekdays 5am - 3pm (WAST) and closes on weekends, users can still invest and use the bot outside of these hours, however their profits won't go up until the market re-opens. 
+A fake stock market which utilises Python, SQLite and Selenium. Allows users to invest into the ASX without the risk of losing any money. Scrapes the ASX through a Chrome web-driver and stores all investor data stored within a database which the user can query through various commands. The market is open on weekdays 5am - 3pm (WAST) and closes on weekends, users can still invest and use the bot outside of these hours, however their profits won't go up until the market re-opens. 
 
 ## Usage
 #### List Commands
