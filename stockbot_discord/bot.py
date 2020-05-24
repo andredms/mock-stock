@@ -22,7 +22,7 @@ import pyimgur
 from discord import Game
 
 load_dotenv()
-TOKEN = ''
+TOKEN = 'x'
 
 client = discord.Client()
 
@@ -32,6 +32,8 @@ async def on_message(message):
         return
     list = message.content.split()
     now = datetime.datetime.now()
+    auto = False
+    updated = False
 
     #SET CLOSING VALUES
     if(now.hour >= 14 and now.hour <= 23):
@@ -39,6 +41,16 @@ async def on_message(message):
         for company in companies:
             wrapper_update_prev_value(message.author.id, company)
         profit = wrapper_select_profit(message.author.id)
+    
+    #MANUALLY UPDATES
+    #this will eventually be scheduled at 1:50 every 24 hours, however since not being hosted 24/7
+    #someone has to message the channel to update from 1:30 - 2:00 (market close)
+    if((now.hour == 13 and now.minute >= 30) and (now.day >= 1 and now.day <= 5) and (updated == False)):
+        auto = True
+        users = wrapper_select_users()
+        for user in users:
+            update(user, auto)
+        updated = True
 
     #INVEST
     if(message.content.startswith('$i')):
@@ -115,97 +127,7 @@ async def on_message(message):
     if(message.content == '$u'):
         now = datetime.datetime.now()
         if((now.hour >= 8 and now.hour < 14) and (now.day >= 1 and now.day <= 5)):
-            list = wrapper_all_companies(message.author.id)
-            totalProfit = 0
-            newProfit = 0
-            embed = discord.Embed(title="Update 📈", color=0xcc33ff)
-
-            #FOR ALL COMPANIES INVESTED IN
-            for company in list:
-                #get previous value
-                prevVal = wrapper_select_prev(message.author.id, company)
-
-                #get the increase in percent
-                increase = float(getLink(company))
-
-                #store raw percent
-                rawIncrease = str(increase)
-
-                increase = (increase / 100) + 1
-
-                #IF NEW INVESTMENT
-                if(prevVal == 0.0):
-                    #get original worth
-                    investment = investment_worth(message.author.id, company)
-
-                    #get the starting increase
-                    starterIncrease = (wrapper_select_start_precent(message.author.id, company) / 100)
-
-                    #get change in increase since first invested
-                    newIncrease = increase - starterIncrease
-
-                    #new current value
-                    curVal = investment * newIncrease 
-
-                    #get the profit 
-                    profit = str((curVal - investment))
-
-                    #add profit to total profits
-                    newProfit += float(profit)
-                    profit = float(profit)
-                    profit = round(profit, 2)
-                    profit = str(profit)
-
-                    #check if profit is negative
-                    if('-' in profit):
-                        profit = profit.replace('-', '-$')
-                    else:
-                        profit = "$" + profit
-                    if('-' in str(rawIncrease)):
-                        embed.add_field(name=company, value="Down: " + rawIncrease + "%" + " (" + profit + ")", inline=False)
-                    else:
-                        embed.add_field(name=company, value="Up: " + rawIncrease + "%" + " (" + profit + ")", inline=False)
-
-                    #update new value
-                    wrapper_update_curr_val(message.author.id, curVal, company)
-                #old investments
-                else: 
-                    #new current value
-                    curVal = prevVal * increase
-
-                    #get initial investment value
-                    investment = investment_worth(message.author.id, company)
-
-                    #add profit to total profits
-                    profit = float(curVal - investment)
-                    newProfit += profit
-                    profit = round(profit, 2)
-                    profit = str(profit)
-
-                    #check if profit is negative
-                    if('-' in profit):
-                        profit.replace('-', '-$')
-                    else:
-                        profit = "$" + profit
-                    if(('-' in str(rawIncrease))):
-                        embed.add_field(name=company, value="Down: " + rawIncrease + " (" + profit + ")", inline=False)
-                    else:
-                        embed.add_field(name=company, value="Up: " + rawIncrease + "%" + " (" + profit + ")", inline=False)   
-                    
-                    #update new value
-                    wrapper_update_curr_val(message.author.id, curVal, company)
-
-                #update total profit of user
-                wrapper_update_profit(message.author.id, newProfit)
-
-            newProfit = round(newProfit, 2)
-            newProfit = str(newProfit)
-            if('-' in newProfit):
-                newProfit.replace('-', '-$')
-            else:
-                newProfit = "$" + newProfit
-            embed.add_field(name="Total Profit", value=newProfit, inline=False)
-            await message.channel.send(embed=embed)
+            update(message.author.id, auto)
         else:
             embed = discord.Embed(title="Market is closed!", color=0xff4545)
             await message.channel.send(embed=embed)
@@ -245,7 +167,7 @@ async def on_message(message):
         filename = str(message.author.id) + '.png'
         
         #for pyimgur
-        CLIENT_ID = ""
+        CLIENT_ID = "x"
     
         #uploads to imgur from local 
         im = pyimgur.Imgur(CLIENT_ID)
@@ -269,6 +191,100 @@ async def on_message(message):
         embed.add_field(name="Sell", value="$s <company-acronym>", inline=False)
         embed.add_field(name="Update", value="$u", inline=False)
         embed.add_field(name="Profile", value="$p", inline=False)
+        await message.channel.send(embed=embed)
+
+async def update(userId, auto):
+    list = wrapper_all_companies(userId)
+    totalProfit = 0
+    newProfit = 0
+    embed = discord.Embed(title="Update 📈", color=0xcc33ff)
+
+    #FOR ALL COMPANIES INVESTED IN
+    for company in list:
+        #get previous value
+        prevVal = wrapper_select_prev(userId, company)
+
+        #get the increase in percent
+        increase = float(getLink(company))
+
+        #store raw percent
+        rawIncrease = str(increase)
+
+        increase = (increase / 100) + 1
+
+        #IF NEW INVESTMENT
+        if(prevVal == 0.0):
+            #get original worth
+            investment = investment_worth(userId, company)
+
+            #get the starting increase
+            starterIncrease = (wrapper_select_start_precent(userId, company) / 100)
+
+            #get change in increase since first invested
+            newIncrease = increase - starterIncrease
+
+            #new current value
+            curVal = investment * newIncrease 
+
+            #get the profit 
+            profit = str((curVal - investment))
+
+            #add profit to total profits
+            newProfit += float(profit)
+            profit = float(profit)
+            profit = round(profit, 2)
+            profit = str(profit)
+
+            #check if profit is negative
+            if('-' in profit):
+                profit = profit.replace('-', '-$')
+            else:
+                profit = "$" + profit
+            if('-' in str(rawIncrease)):
+                embed.add_field(name=company, value="Down: " + rawIncrease + "%" + " (" + profit + ")", inline=False)
+            else:
+                embed.add_field(name=company, value="Up: " + rawIncrease + "%" + " (" + profit + ")", inline=False)
+
+            #update new value
+            wrapper_update_curr_val(userId, curVal, company)
+        #old investments
+        else: 
+            #new current value
+            curVal = prevVal * increase
+
+            #get initial investment value
+            investment = investment_worth(userId, company)
+
+            #add profit to total profits
+            profit = float(curVal - investment)
+            newProfit += profit
+            profit = round(profit, 2)
+            profit = str(profit)
+
+            #check if profit is negative
+            if('-' in profit):
+                profit.replace('-', '-$')
+            else:
+                profit = "$" + profit
+            if(('-' in str(rawIncrease))):
+                embed.add_field(name=company, value="Down: " + rawIncrease + " (" + profit + ")", inline=False)
+            else:
+                embed.add_field(name=company, value="Up: " + rawIncrease + "%" + " (" + profit + ")", inline=False)   
+            
+            #update new value
+            wrapper_update_curr_val(userId, curVal, company)
+
+        #update total profit of user
+        wrapper_update_profit(userId, newProfit)
+
+    newProfit = round(newProfit, 2)
+    newProfit = str(newProfit)
+    if('-' in newProfit):
+        newProfit.replace('-', '-$')
+    else:
+        newProfit = "$" + newProfit
+    embed.add_field(name="Total Profit", value=newProfit, inline=False)
+    if(auto == False):
         await message.channel.send(embed=embed)
 
 @client.event
