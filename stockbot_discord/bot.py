@@ -22,7 +22,7 @@ import pyimgur
 from discord import Game
 
 load_dotenv()
-TOKEN = 'x'
+TOKEN = ''
 
 client = discord.Client()
 
@@ -34,7 +34,7 @@ async def on_message(message):
     now = datetime.datetime.now()
 
     #SET CLOSING VALUES
-    if(now.hour >= 15 and now.hour <= 23):
+    if(now.hour >= 14 and now.hour <= 23):
         companies = wrapper_all_companies(message.author.id)
         for company in companies:
             wrapper_update_prev_value(message.author.id, company)
@@ -60,7 +60,7 @@ async def on_message(message):
         
         if(hasInvested == False and found == True):
             #opening hours
-            if((now.hour > 5 and now.hour < 15) and (change >= 0) and (amount >= 0.10) and (now.day >= 1 and now.day <= 5)):
+            if((now.hour >= 8 and now.hour < 14) and (change >= 0) and (amount >= 0.10) and (now.day >= 1 and now.day <= 5)):
                 wrapper_update_investments(message.author.id, list[1], amount, float(inc))
                 wrapper_reduce_worth(message.author.id, float(amount))
                 embed = discord.Embed(title="Invested 💰", description=message.author.mention + " invested in: " + list[1], color=0xcc33ff)
@@ -245,7 +245,7 @@ async def on_message(message):
         filename = str(message.author.id) + '.png'
         
         #for pyimgur
-        CLIENT_ID = "x"
+        CLIENT_ID = ""
     
         #uploads to imgur from local 
         im = pyimgur.Imgur(CLIENT_ID)
