@@ -20,7 +20,7 @@ This command brings up how much a user is worth, the profit they've made on the 
 #### Invest
 ```$i <company-acronym> <amount>```
   
-Allows the user to invest into a company. If you've already invested in a company, you must sell all your shares in it before buying extra of them (eventually will be able to invest new amounts into the same company). 
+Allows the user to invest into a company. If you've already invested in a company, you must sell all your shares in it before buying extra (eventually will be able to invest new amounts into the same company). 
   
 #### Sell
 ```$s <company-name>```
