@@ -22,7 +22,7 @@ import pyimgur
 from discord import Game
 
 load_dotenv()
-TOKEN = 'NzEwNzUxMTU1NTA0MDIxNTI0.XseLUA.QOczMvtK5Y6BtIvxNxk-xBvOXKs'
+TOKEN = 'x'
 
 client = discord.Client()
 
@@ -245,7 +245,7 @@ async def on_message(message):
         filename = str(message.author.id) + '.png'
         
         #for pyimgur
-        CLIENT_ID = "d95a458dfbfe7ae"
+        CLIENT_ID = "x"
     
         #uploads to imgur from local 
         im = pyimgur.Imgur(CLIENT_ID)
