@@ -6,7 +6,7 @@ A fake stock market which utilises Python, SQLite and Selenium. Allows users to 
 $help
 
 #### Add Profile to Database 
-$etup
+``$etup```
 
 All users inititally start out with $500 spending cash, they can invest this and then sell their stocks to earn more money. 
 
