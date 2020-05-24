@@ -3,7 +3,7 @@ A fake stock market which utilises Python, SQLite and Selenium. Allows users to 
 
 ## Usage
 #### List Commands
-$help
+```$help```
 
 #### Add Profile to Database 
  ```$etup```
@@ -11,21 +11,21 @@ $help
 All users inititally start out with $500 spending cash, they can invest this and then sell their stocks to earn more money. 
 
 #### View Profile
-$p 
+```$p```
 
 This command brings up how much a user is worth, the profit they've made on the ASX, their invested companies and an embeded graph of their profits over time. Graph is scheduled to update every 24 hours.
 
 #### Invest
-$i <company-acronym> <amount>
+```$i <company-acronym> <amount>```
   
-Allows the user to invest into a company. 
+Allows the user to invest into a company. If you've already invested in a company, you must sell all your shares in it before buying extra of them (eventually will be able to invest new amounts into the same company). 
   
 #### Sell
-$s <company-name>
+```$s <company-name>```
   
 Sells all shares a user holds for any given company (eventually will be able to sell a given amount).
   
 #### Update
-$u
+```$u```
 
 Updates the values of a shareholders stocks and displays the new value of them. This can be done at any time during opening hours. 
