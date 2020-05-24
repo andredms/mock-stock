@@ -114,7 +114,7 @@ async def on_message(message):
     #UPDATE STOCK VALUES
     if(message.content == '$u'):
         now = datetime.datetime.now()
-        if((now.hour > 5 and now.hour < 15) and (now.day >= 1 and now.day <= 5)):
+        if((now.hour >= 8 and now.hour < 14) and (now.day >= 1 and now.day <= 5)):
             list = wrapper_all_companies(message.author.id)
             totalProfit = 0
             newProfit = 0
