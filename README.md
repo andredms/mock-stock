@@ -7,6 +7,9 @@ Ideal for a Discord server as it allows users to compete with friends. There's a
 #### Host
 ```python3 bot.py```
 
+#### Create Database
+```python3 database.py```
+
 #### List Commands
 ```$help```
 
