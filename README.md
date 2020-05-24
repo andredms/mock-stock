@@ -6,6 +6,8 @@ A fake stock market which utilises Python, SQLite and Selenium. Allows users to 
 
 Ideal for a Discord server as it allows users to compete with friends. There's also a simple CLI version (not uploaded) if you want to run solo. Leaderboards and 24/7 hosting coming soon!
 
+![](https://i.imgur.com/ZjvELP7.png)
+
 ## Usage
 #### Host
 ```python3 bot.py```
