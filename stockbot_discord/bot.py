@@ -19,9 +19,10 @@ import time
 from discord.ext import commands, tasks
 import asyncio
 import pyimgur
+from discord import Game
 
 load_dotenv()
-TOKEN = 'x'
+TOKEN = 'NzEwNzUxMTU1NTA0MDIxNTI0.XseLUA.QOczMvtK5Y6BtIvxNxk-xBvOXKs'
 
 client = discord.Client()
 
@@ -33,7 +34,7 @@ async def on_message(message):
     now = datetime.datetime.now()
 
     #SET CLOSING VALUES
-    if(now.hour > 15 and now.hour < 23):
+    if(now.hour >= 15 and now.hour <= 23):
         companies = wrapper_all_companies(message.author.id)
         for company in companies:
             wrapper_update_prev_value(message.author.id, company)
@@ -59,7 +60,7 @@ async def on_message(message):
         
         if(hasInvested == False and found == True):
             #opening hours
-            if((now.hour > 5 and now.hour < 15)and (change >= 0) and (amount >= 0.10) and (now.day >= 1 and now.day <= 5)):
+            if((now.hour > 5 and now.hour < 15) and (change >= 0) and (amount >= 0.10) and (now.day >= 1 and now.day <= 5)):
                 wrapper_update_investments(message.author.id, list[1], amount, float(inc))
                 wrapper_reduce_worth(message.author.id, float(amount))
                 embed = discord.Embed(title="Invested 💰", description=message.author.mention + " invested in: " + list[1], color=0xcc33ff)
@@ -73,6 +74,8 @@ async def on_message(message):
                 wrapper_update_investments(message.author.id, list[1], amount, 0.0)
                 await message.channel.send(embed=embed)
                 wrapper_reduce_worth(message.author.id, float(amount))
+                #wrapper_update_prev_value(message.author.id, list[1])
+
             #not enough money
             elif(change < 0):
                 embed = discord.Embed(title="Insufficient funds!", color=0xff4545)
@@ -109,7 +112,7 @@ async def on_message(message):
             await message.channel.send(embed=embed)
 
     #UPDATE STOCK VALUES
-    if(message.content.startswith('$u')):
+    if(message.content == '$u'):
         now = datetime.datetime.now()
         if((now.hour > 5 and now.hour < 15) and (now.day >= 1 and now.day <= 5)):
             list = wrapper_all_companies(message.author.id)
@@ -208,7 +211,7 @@ async def on_message(message):
             await message.channel.send(embed=embed)
 
     #USER DETAILS
-    if(message.content.startswith('$p')):
+    if(message.content == '$p'):
         #get all companies of user
         companies = wrapper_all_companies(message.author.id)
         for ii, company in enumerate(companies):
@@ -240,9 +243,9 @@ async def on_message(message):
 
         #get .png graph
         filename = str(message.author.id) + '.png'
-
+        
         #for pyimgur
-        CLIENT_ID = "x"
+        CLIENT_ID = "d95a458dfbfe7ae"
     
         #uploads to imgur from local 
         im = pyimgur.Imgur(CLIENT_ID)
@@ -268,6 +271,9 @@ async def on_message(message):
         embed.add_field(name="Profile", value="$p", inline=False)
         await message.channel.send(embed=embed)
 
+@client.event
+async def on_ready():
+    await client.change_presence(status=discord.Status.online, activity=discord.Game("ASX"))
 
 async def saveGraph():
     await client.wait_until_ready()
