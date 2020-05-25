@@ -103,8 +103,8 @@ async def invest(message, args):
 
     #checks if user has already invested
     all_companies = wrapper_all_companies(message.author.id)
-    if(company not in all_companies):
-            has_invested = True
+    if(company in all_companies):
+        has_invested = True
 
     #checks if company is valid
     inc = getLink(company)
@@ -160,12 +160,10 @@ async def sell(message, args):
         investment = investment_worth(message.author.id, company)
         curr_val = wrapper_select_curr_val(message.author.id, company)
         profit = curr_val - investment
-        new_balance = investment + profit
-        wrapper_increase_balance(message.author.id, new_balance)
-        balance = wrapper_select_balance(message.author.id)
 
         #takes company out of user's listings
         wrapper_withdraw(message.author.id, company)
+        balance = wrapper_select_balance(message.author.id)
 
         #format message
         embed = discord.Embed(title="Sold 💸", description=message.author.mention + " withdrew: " + company, color=0xcc33ff)
