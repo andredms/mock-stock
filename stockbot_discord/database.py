@@ -15,13 +15,6 @@ def create_connection(db_file):
         print(e)
     return conn
 
-def create_stockholder(conn, user):
-    sql = ''' INSERT INTO users(id, name, worth, profit)
-              VALUES(?, ?, ?, ?) '''
-    cur = conn.cursor()
-    cur.execute(sql, user)
-    return cur.lastrowid
-
 def create_table(conn, create_table_sql):
     try:
         c = conn.cursor()
@@ -36,7 +29,7 @@ def create_db():
     sql_create_user_table = """ CREATE TABLE IF NOT EXISTS users (
                                     id INTEGER PRIMARY KEY,
                                     name TEXT NOT NULL,
-                                    worth REAL,
+                                    balance REAL,
                                     profit REAL
                                 ); """
 
@@ -57,12 +50,5 @@ def create_db():
         create_table(conn, sql_create_company_table)
     else:
         print("Error: cannot create database connection")
-
-def add_user(userId, username):
-    database = (r"stocks.db")
-    conn = create_connection(database)
-    with conn:
-        user = (userId, username, "500.0", "0.0")
-        user_id = create_stockholder(conn, user)
 
 create_db()

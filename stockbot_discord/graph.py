@@ -7,6 +7,7 @@
 import matplotlib.pyplot as plt
 from pylab import figure, axes, pie, title, show
 import numpy as np
+import os
 
 def graph(userId, username):
     plt.style.use('seaborn-whitegrid')
@@ -16,15 +17,14 @@ def graph(userId, username):
     x = np.genfromtxt(filename, delimiter=',')
     y = [None] * len(x)
     for ii, coordinates in enumerate(x):
-        if(ii == 0):
-            y[ii] == coordinates
-        elif(coordinates != y[ii - 1]):
             y[ii] = coordinates
+            x[ii] = ii
 
-    plt.suptitle(username + "\'s earnings", fontsize=20)
+    plt.suptitle(username + "\'s Worth", fontsize=20)
     plt.ylabel('Amount ($)')
     plt.xlabel('Days')
-    plt.axhline(y=0, color='b', linestyle='--')
-    plt.plot(y, x, color="red")
+    plt.axhline(y=500, color='b', linestyle='--')
+    plt.plot(x, y, color="red")
     out = str(userId) + '.png'
+    #os.remove(out)
     plt.savefig(out)

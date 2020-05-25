@@ -17,9 +17,9 @@ def create_connection(db_file):
     return conn
 
 #get the worth of someone
-def select_worth(conn, id):
+def select_balance(conn, id):
     cur = conn.cursor()
-    worth = cur.execute("SELECT worth FROM users WHERE id=?", (id,))
+    balance = cur.execute("SELECT balance FROM users WHERE id=?", (id,))
     rows = cur.fetchall()
     for row in rows:
         return row[0]
@@ -27,7 +27,7 @@ def select_worth(conn, id):
 #get the total profit of someone
 def select_profit(conn, id):
     cur = conn.cursor()
-    worth = cur.execute("SELECT profit FROM users WHERE id=?", (id,))
+    profit = cur.execute("SELECT profit FROM users WHERE id=?", (id,))
     rows = cur.fetchall()
     for row in rows:
         return row[0]
@@ -35,7 +35,7 @@ def select_profit(conn, id):
 #get investment worth
 def select_investment_val(conn, userId, company):
     cur = conn.cursor()
-    worth = cur.execute("SELECT invested FROM companies WHERE userId=? AND company=?", (userId,company,))
+    investment = cur.execute("SELECT invested FROM companies WHERE userId=? AND company=?", (userId,company,))
     rows = cur.fetchall()
     for row in rows:
         return row[0]
@@ -43,7 +43,7 @@ def select_investment_val(conn, userId, company):
 #get current value of share of company for user
 def select_curr_val(conn, userId, company):
     cur = conn.cursor()
-    worth = cur.execute("SELECT curValue FROM companies WHERE userId=? AND company=?", (userId,company,))
+    curr_val = cur.execute("SELECT curValue FROM companies WHERE userId=? AND company=?", (userId,company,))
     rows = cur.fetchall()
     for row in rows:
         return row[0]
@@ -51,7 +51,7 @@ def select_curr_val(conn, userId, company):
 #get previous closing value
 def select_prev_val(conn, userId, company):
     cur = conn.cursor()
-    prev = cur.execute("SELECT prevValue FROM companies WHERE userId=? AND company=?", (userId,company,))
+    prev_val = cur.execute("SELECT prevValue FROM companies WHERE userId=? AND company=?", (userId,company,))
     rows = cur.fetchall()
     for row in rows:
         return row[0]
@@ -59,27 +59,27 @@ def select_prev_val(conn, userId, company):
 #gets list of all companies user is invested in
 def select_all_companies(conn, userId):
     cur = conn.cursor()
-    worth = cur.execute("SELECT company FROM companies WHERE userId=?", (userId,))
+    all_companies = cur.execute("SELECT company FROM companies WHERE userId=?", (userId,))
     rows = cur.fetchall()
-    list = []
+    all_companies = []
     for row in rows:
-        list.append(row[0])
-    return list
+        all_companies.append(row[0])
+    return all_companies
 
 #gets list of all users
 def select_users(conn):
     cur = conn.cursor()
-    worth = cur.execute("SELECT id FROM users")
+    users = cur.execute("SELECT id FROM users")
     rows = cur.fetchall()
-    list = []
+    users_all = []
     for row in rows:
-        list.append(row[0])
-    return list
+        users_all.append(row[0])
+    return users
 
 #gets previous closing value of a user's investment for a specific company
 def select_prev_value(conn, userId, company):
     cur = conn.cursor()
-    worth = cur.execute("SELECT prevValue FROM companies WHERE userId=? AND company=?", (userId,company))
+    prev_val = cur.execute("SELECT prevValue FROM companies WHERE userId=? AND company=?", (userId,company))
     rows = cur.fetchall()
     for row in rows:
         return row[0]
@@ -87,7 +87,7 @@ def select_prev_value(conn, userId, company):
 #gets the value of what the increase/decrease % was when user first invested
 def select_start_percent(conn, userId, company):
     cur = conn.cursor()
-    worth = cur.execute("SELECT startPercent FROM companies WHERE userID=? AND company=?", (userId, company))
+    start_percent = cur.execute("SELECT startPercent FROM companies WHERE userID=? AND company=?", (userId, company))
     rows = cur.fetchall()
     for row in rows:
         return row[0]
@@ -101,10 +101,10 @@ def update_profit(conn, task):
     cur.execute(sql, task)
     conn.commit()
 
-#update how much someone is worth (without updating profit)
-def update_worth(conn, task):
+#update someone's balance
+def update_balance(conn, task):
     sql = ''' UPDATE users
-              SET worth = ?
+              SET balance = ?
               WHERE id = ?'''
     cur = conn.cursor()
     cur.execute(sql, task)
@@ -136,6 +136,14 @@ def update_investments(conn, task):
     cur.execute(sql, task)
     return cur.lastrowid
 
+#adds users
+def create_stockholder(conn, user):
+    sql = ''' INSERT INTO users(id, name, balance, profit)
+              VALUES(?, ?, ?, ?) '''
+    cur = conn.cursor()
+    cur.execute(sql, user)
+    return cur.lastrowid
+
 #withdraw company from someone's investments 
 def withdraw_company(conn, company, userId):
     cur = conn.cursor()
@@ -144,19 +152,19 @@ def withdraw_company(conn, company, userId):
     cur.execute(sql, (company, userId,))
     conn.commit()
 
-def wrapper_select_worth(userId):
+def wrapper_select_balance(userId):
     database = r"stocks.db"
     conn = create_connection(database)
-    worth = select_worth(conn, userId)
-    return worth
+    balance = select_balance(conn, userId)
+    return balance
 
-def wrapper_reduce_worth(userId, val):
+def wrapper_reduce_balance(userId, val):
     database = r"stocks.db"
     conn = create_connection(database)
     with conn:
-        worth = select_worth(conn, userId)
-        worth = worth - val
-        update_worth(conn, (worth, userId))
+        balance = select_balance(conn, userId)
+        balance = balance - val
+        update_balance(conn, (balance, userId))
 
 def wrapper_update_investments(userId, company, invested, startPercent):
     database = r"stocks.db"
@@ -170,9 +178,9 @@ def wrapper_withdraw(userId, company):
     with conn:
         cashback = select_curr_val(conn, userId, company)
         withdraw_company(conn, company, userId)
-        worth = select_worth(conn, userId)
-        worth = worth + cashback
-        update_worth(conn, (worth, userId))
+        balance = select_balance(conn, userId)
+        balance = balance + cashback
+        update_balance(conn, (balance, userId))
         
 def wrapper_all_companies(userId):
     database = r"stocks.db"
@@ -241,3 +249,19 @@ def wrapper_select_users():
     with conn:
         users = select_users(conn)
     return users
+
+def add_user(userId, username):
+    database = (r"stocks.db")
+    conn = create_connection(database)
+    balance = "500.0"
+    with conn:
+        user = (userId, username, balance, "0.0")
+        user_id = create_stockholder(conn, user)
+
+def wrapper_increase_balance(userId, bal_increase):
+    database = r"stocks.db"
+    conn = create_connection(database)
+    with conn:
+        curr_balance = select_balance(conn, userId)
+        new_balance = curr_balance + bal_increase
+        update_balance(conn, (bal_increase, userId))
