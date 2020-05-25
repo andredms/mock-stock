@@ -47,10 +47,7 @@ async def on_message(message):
     if message.author == client.user:
         return
     args = message.content.split()
-
-    users = wrapper_select_users()
-    if(message.author.id not in users):
-        embed = discord.Embed(title="You're not a stockholder yet! Run $etup", color=0xff4545)
+    
     #INVEST
     if(message.content.startswith('$i')):
         await invest(message, args)
