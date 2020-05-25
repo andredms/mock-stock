@@ -48,6 +48,9 @@ async def on_message(message):
         return
     args = message.content.split()
 
+    users = wrapper_select_users()
+    if(message.author.id not in users):
+        embed = discord.Embed(title="You're not a stockholder yet! Run $etup", color=0xff4545)
     #INVEST
     if(message.content.startswith('$i')):
         await invest(message, args)
@@ -100,8 +103,7 @@ async def invest(message, args):
 
     #checks if user has already invested
     all_companies = wrapper_all_companies(message.author.id)
-    for ii in all_companies:
-        if(ii == list[1]):
+    if(company not in all_companies):
             has_invested = True
 
     #checks if company is valid
@@ -121,7 +123,6 @@ async def invest(message, args):
             if((now.hour < 8 and now.hour >= 14) and (change >= 0.0) and (amount >= 0.10)):
                 wrapper_update_prev_value(message.author.id, company)
             await message.channel.send(embed=embed)
-
     #not enough money
     elif(change < 0):
         embed = discord.Embed(title="Insufficient funds!", color=0xff4545)
