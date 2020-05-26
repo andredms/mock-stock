@@ -7,7 +7,6 @@
 import matplotlib.pyplot as plt
 from pylab import figure, axes, pie, title, show
 import numpy as np
-import os
 
 def graph(userId, username):
     plt.style.use('seaborn-whitegrid')
@@ -15,16 +14,16 @@ def graph(userId, username):
 
     #gets csv from file
     x = np.genfromtxt(filename, delimiter=',')
-    y = [None] * len(x)
-    for ii, coordinates in enumerate(x):
-            y[ii] = coordinates
-            x[ii] = ii
+    #removes duplicates, this won't be needed when hosted 24/7
+    x = list(dict.fromkeys(x))
+
+    y = np.arange(1, len(x) + 1, 1)
 
     plt.suptitle(username + "\'s Worth", fontsize=20)
     plt.ylabel('Amount ($)')
     plt.xlabel('Days')
     plt.axhline(y=500, color='b', linestyle='--')
-    plt.plot(x, y, color="red")
+    plt.plot(y, x, color="red")
     out = str(userId) + '.png'
-    #os.remove(out)
     plt.savefig(out)
+    plt.close()

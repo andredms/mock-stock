@@ -47,7 +47,6 @@ async def on_message(message):
     if message.author == client.user:
         return
     args = message.content.split()
-    
     #INVEST
     if(message.content.startswith('$i')):
         await invest(message, args)
@@ -56,7 +55,7 @@ async def on_message(message):
         await sell(message, args)
     #UPDATE
     if(message.content == '$u'):
-        await update(message)
+        await update(message, False)
     #USER DETAILS
     if(message.content == '$p'):
         await profile(message)
@@ -102,7 +101,7 @@ async def invest(message, args):
     all_companies = wrapper_all_companies(message.author.id)
     if(company in all_companies):
         has_invested = True
-
+ 
     #checks if company is valid
     inc = getLink(company)
     if(inc != None or inc != '-'):
@@ -115,9 +114,10 @@ async def invest(message, args):
 
             wrapper_update_investments(message.author.id, company, amount, inc)
             wrapper_reduce_balance(message.author.id, float(amount))
+            embed.add_field(name="Balance", value="$" + str(round(wrapper_select_balance(message.author.id), 2)))
 
             #if outside opening hours, set closing value to investment amount 
-            if((now.hour < 8 and now.hour >= 14) and (change >= 0.0) and (amount >= 0.10)):
+            if(now.hour < 8 and now.hour >= 14):
                 wrapper_update_prev_value(message.author.id, company)
             await message.channel.send(embed=embed)
     #not enough money
@@ -134,7 +134,7 @@ async def invest(message, args):
         await message.channel.send(embed=embed)
     #user has already invested
     elif(has_invested == True):
-        embed = discord.Embed(title="You've already invested in " + list[1], description="Sell before buying more!", color=0xff4545)
+        embed = discord.Embed(title="You've already invested in " + company, description="Sell before buying more!", color=0xff4545)
         await message.channel.send(embed=embed)
 
 ##############################
@@ -157,10 +157,11 @@ async def sell(message, args):
         investment = investment_worth(message.author.id, company)
         curr_val = wrapper_select_curr_val(message.author.id, company)
         profit = curr_val - investment
+        profit = round(profit, 2)
 
         #takes company out of user's listings
         wrapper_withdraw(message.author.id, company)
-        balance = wrapper_select_balance(message.author.id)
+        balance = round(wrapper_select_balance(message.author.id), 2)
 
         #format message
         embed = discord.Embed(title="Sold 💸", description=message.author.mention + " withdrew: " + company, color=0xcc33ff)
@@ -176,7 +177,7 @@ async def sell(message, args):
 # Purpose: updates stocks    #
 # Import: none               #
 ##############################
-async def update(message):
+async def update(message, auto):
     now = datetime.datetime.now()
     #if opening hours
     if((now.hour >= 8 and now.hour < 14)):
@@ -236,16 +237,18 @@ async def update(message):
             wrapper_update_profit(message.author.id, new_profit)
             
         #profit with stocks currently held
-        newProfit = str(round(newProfit, 2))
-        if('-' in newProfit):
-            newProfit.replace('-', '-$')
+        new_profit = str(round(new_profit, 2))
+        if('-' in new_profit):
+            new_profit.replace('-', '-$')
         else:
-            newProfit = "$" + newProfit
-        embed.add_field(name="Total Profit", value=newProfit, inline=False)
-        await message.channel.send(embed=embed)
+            new_profit = "$" + new_profit
+        embed.add_field(name="Total Profit", value=new_profit, inline=False)
+        if(auto == False):
+            await message.channel.send(embed=embed)
     else:
         embed = discord.Embed(title="Market is closed!", color=0xff4545)
-        await message.channel.send(embed=embed)
+        if(auto == False):
+            await message.channel.send(embed=embed)
 
 ##############################
 # Name: update               #
@@ -313,30 +316,31 @@ async def profile(message):
 # Import: none               #
 ##############################
 async def save_graph():
-    await client.wait_until_ready()
+    #await client.wait_until_ready()
+    now = datetime.datetime.now()  
     users = wrapper_select_users()
     #update users profits
-    for id in users:
+    for userId in users:
         worth = 0.0
         balance = 0.0
+        if(now.hour == 14 and now.minute == 1):
+            #get all companies of user
+            await update(userId, True)
+            companies = wrapper_all_companies(userId)
+            for ii, company in enumerate(companies):
+                curr_val = float(wrapper_select_curr_val(userId, company))
+                wrapper_update_prev_value(userId, company)
+                worth += curr_val
 
-        #get all companies of user
-        companies = wrapper_all_companies(id)
-        for ii, company in enumerate(companies):
-            worth += float(wrapper_select_curr_val(id, company))
-
-        #get balance of user
-        balance = round(wrapper_select_balance(id), 2)
-
-        worth += float(balance)
-        worth = round(worth, 2)
-
-        filename = str(id) + '.txt'
-        with open(filename, "a") as myFile:
-            myFile.write(str(worth) + ',')
-
+            #get balance of user
+            balance = round(float(wrapper_select_balance(userId)), 2)
+            worth += balance
+            worth = round(worth, 2)
+            filename = str(userId) + '.txt'
+            with open(filename, "a") as myFile:
+                myFile.write(str(worth) + ',')
     #only happens every 24 hours
-    await asyncio.sleep((60*60)*24)
+    await asyncio.sleep((1))
 
 #background task to continously set closing values/txt files for graphing
 client.loop.create_task(save_graph())

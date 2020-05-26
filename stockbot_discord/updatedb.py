@@ -74,7 +74,7 @@ def select_users(conn):
     users_all = []
     for row in rows:
         users_all.append(row[0])
-    return users
+    return users_all
 
 #gets previous closing value of a user's investment for a specific company
 def select_prev_value(conn, userId, company):
@@ -186,8 +186,8 @@ def wrapper_all_companies(userId):
     database = r"stocks.db"
     conn = create_connection(database)
     with conn:
-        list = select_all_companies(conn, userId)
-    return list
+        all_companies = select_all_companies(conn, userId)
+    return all_companies
 
 def wrapper_select_curr_val(userId, company):
     database = r"stocks.db"
@@ -264,4 +264,5 @@ def wrapper_increase_balance(userId, bal_increase):
     with conn:
         curr_balance = select_balance(conn, userId)
         new_balance = curr_balance + bal_increase
+        print(bal_increase)
         update_balance(conn, (bal_increase, userId))
