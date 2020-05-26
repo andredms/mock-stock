@@ -16,7 +16,7 @@ import discord
 import os
 import datetime
 
-from getpercent import *
+from scraper import *
 from updatedb import *
 from graph import *
 from database import *
@@ -25,6 +25,7 @@ load_dotenv()
 
 #token goes here
 TOKEN = 'x'
+CLIENT_ID = "x"
 
 client = discord.Client()
 
@@ -49,9 +50,11 @@ async def on_message(message):
     args = message.content.split()
     #INVEST
     if(message.content.startswith('$i')):
+        args[1] = args[1].upper()
         await invest(message, args)
     #SELL
     if(message.content.startswith('$s')):
+        args[1] = args[1].upper()
         await sell(message, args)
     #UPDATE
     if(message.content == '$u'):
@@ -59,6 +62,17 @@ async def on_message(message):
     #USER DETAILS
     if(message.content == '$p'):
         await profile(message)
+    #GET COMPANY GRAPH
+    if(message.content.startswith('$g')):
+        get_graph(args[1].upper())
+        embed = discord.Embed(title=str(args[1]) + " Graph 📊", color=0xcc33ff)
+        #uploads to imgur from local 
+        im = pyimgur.Imgur(CLIENT_ID)
+        #gets link of imgur upload
+        image = im.upload_image("graph.png")
+        #embeds message in discord
+        embed.set_image(url=image.link)
+        await message.channel.send(embed=embed)
     #ADDS USER TO DATABASE
     if(message.content == '$etup'):
         add_user(message.author.id, message.author.name)
@@ -73,6 +87,7 @@ async def on_message(message):
         embed.add_field(name="Sell", value="$s <company-acronym>", inline=False)
         embed.add_field(name="Update", value="$u", inline=False)
         embed.add_field(name="Profile", value="$p", inline=False)
+        embed.add_field(name="Get graph", value="$g <company-acronym>", inline=False)
         await message.channel.send(embed=embed)
 
 ##############################
@@ -103,7 +118,7 @@ async def invest(message, args):
         has_invested = True
  
     #checks if company is valid
-    inc = getLink(company)
+    inc = get_link(company)
     if(inc != None or inc != '-'):
         is_company = True
     
@@ -192,7 +207,7 @@ async def update(message, auto):
             #get previous value
             prev_val = wrapper_select_prev(message.author.id, company)
             #get the increase in percent
-            increase = float(getLink(company))
+            increase = float(get_link(company))
             #store raw percent
             rawIncrease = str(increase)
             increase = (increase / 100) + 1
@@ -295,9 +310,6 @@ async def profile(message):
 
     #get .png graph
     filename = str(message.author.id) + '.png'
-    
-    #for pyimgur
-    CLIENT_ID = "x"
 
     #uploads to imgur from local 
     im = pyimgur.Imgur(CLIENT_ID)
