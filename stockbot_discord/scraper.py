@@ -18,13 +18,10 @@ def get_link(acronym):
     #append company acronym to url
     url = "https://www.asx.com.au/asx/share-price-research/company/" + acronym
     driver.get(url)
-
     #give enough time for javascript to load
     sleep(0.5)
-
     #get raw html
     html = driver.page_source
-
     driver.quit()
     #process html
     new_html = BeautifulSoup(html, "html.parser")
