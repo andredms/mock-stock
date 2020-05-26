@@ -38,13 +38,13 @@ Allows the user to invest into a company. If you've already invested in a compan
 ```$s <company-name>```
   
 Sells all shares a user holds for any given company (eventually will be able to sell a given amount).
+
+#### Get graph
+```$g <company-name>```
   
 #### Update
 ```$u```
 
 Updates the values of a shareholders stocks and displays the new value of them. This can be done at any time during opening hours. 
-
-#### Get graph
-```$g <company-name>```
 
 Shows company stocks graph
