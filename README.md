@@ -43,3 +43,8 @@ Sells all shares a user holds for any given company (eventually will be able to 
 ```$u```
 
 Updates the values of a shareholders stocks and displays the new value of them. This can be done at any time during opening hours. 
+
+#### Get graph
+```$g <company-name>```
+
+Shows company stocks graph
