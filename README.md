@@ -8,6 +8,8 @@ Ideal for a Discord server as it allows users to compete with friends. There's a
 
 ![](https://i.imgur.com/3YYQgSd.png)
 ![](https://i.imgur.com/2GEWiUU.png)
+![](https://i.imgur.com/gofy5ow.png)
+![](https://i.imgur.com/jAxr1jH.png)
 
 ## Usage
 #### Host
